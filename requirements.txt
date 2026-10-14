@@ -1,0 +1,23 @@
+# Core (tables, text, images with classic ML)
+fastapi
+uvicorn
+python-multipart
+pydantic
+numpy
+pandas
+scikit-learn
+joblib
+pillow
+opencv-python
+
+# Deep learning image classifiers (optional, ~resnet / efficientnet / convnext / vit ...)
+# torch
+# torchvision
+
+# Object detection + segmentation (optional, YOLO11 / YOLOv8 / YOLOv5)
+# ultralytics
+
+# Extra boosted-tree models (optional - show up automatically in the model list)
+# xgboost
+# lightgbm
+# catboost

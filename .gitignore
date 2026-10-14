@@ -1,0 +1,22 @@
+# local data created by the app - never commit datasets or trained models
+workspace/projects/*
+!workspace/projects/.gitkeep
+
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+
+# os / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# model weights downloaded by libraries
+*.pt
+*.pth
+*.joblib
+runs/

@@ -1,0 +1,776 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ML Studio</title>
+<style>
+:root{
+  --bg:#0e1116; --panel:#161b22; --panel2:#1d242d; --line:#2b3440; --text:#e6edf3; --muted:#8b98a8;
+  --accent:#2dd4bf; --accent2:#f5b841; --danger:#f0616d; --ok:#4ade80; --radius:10px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font:14px/1.45 -apple-system,"Segoe UI",Inter,Roboto,sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--accent)}
+header{display:flex;align-items:center;gap:16px;padding:10px 20px;border-bottom:1px solid var(--line);background:var(--panel);position:sticky;top:0;z-index:20}
+.logo{font-weight:700;letter-spacing:.2px;cursor:pointer;display:flex;align-items:center;gap:8px}
+.logo i{display:inline-block;width:18px;height:18px;border-radius:5px;background:linear-gradient(135deg,var(--accent),var(--accent2))}
+header .crumb{color:var(--muted)}
+header .spacer{flex:1}
+.pill{font-size:12px;padding:2px 8px;border-radius:99px;background:var(--panel2);border:1px solid var(--line);color:var(--muted)}
+.pill.ok{color:var(--ok);border-color:#24533a}.pill.no{color:var(--muted)}
+main{padding:20px;max-width:1400px;margin:0 auto}
+.btn{background:var(--panel2);border:1px solid var(--line);padding:7px 14px;border-radius:8px;cursor:pointer;transition:.12s}
+.btn:hover{border-color:#41505f;background:#232c37}
+.btn.primary{background:var(--accent);color:#04201c;border-color:var(--accent);font-weight:600}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.danger{color:var(--danger)}
+.btn.sm{padding:3px 9px;font-size:12.5px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+input,select,textarea{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:7px 10px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+.grid{display:grid;gap:14px}
+.cards{grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+.card.click{cursor:pointer}.card.click:hover{border-color:var(--accent)}
+.card h3{margin:0 0 4px;font-size:16px}
+.muted{color:var(--muted)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:-4px 0 18px}
+.tab{padding:9px 16px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent}
+.tab.on{color:var(--text);border-color:var(--accent)}
+.tab:hover{color:var(--text)}
+h2{margin:0 0 12px;font-size:18px}
+h4{margin:16px 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted)}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--panel2);border:1px solid var(--line);border-radius:99px;padding:3px 10px;margin:0 6px 6px 0;font-size:13px}
+.chip b{width:9px;height:9px;border-radius:50%;display:inline-block}
+.chip x{cursor:pointer;color:var(--muted)}.chip x:hover{color:var(--danger)}
+.drop{border:2px dashed var(--line);border-radius:var(--radius);padding:26px;text-align:center;color:var(--muted);cursor:pointer;transition:.12s}
+.drop.over,.drop:hover{border-color:var(--accent);color:var(--text);background:#10201f}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}
+.thumb{position:relative;border:2px solid transparent;border-radius:8px;overflow:hidden;background:#000;aspect-ratio:1;cursor:pointer}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb .tag{position:absolute;left:0;right:0;bottom:0;font-size:11px;padding:2px 6px;background:rgba(0,0,0,.65);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.thumb.sel{border-color:var(--accent)}
+.thumb .ck{position:absolute;top:4px;left:4px;width:18px;height:18px}
+table.t{border-collapse:collapse;width:100%;font-size:13px}
+table.t th,table.t td{border:1px solid var(--line);padding:0;text-align:left;white-space:nowrap}
+table.t th{background:var(--panel2);padding:6px 8px;position:sticky;top:0;font-weight:600}
+table.t th.tgt{color:var(--accent2)}
+table.t td input{border:0;border-radius:0;background:transparent;width:100%;min-width:80px;padding:5px 8px}
+table.t td input:focus{background:#10201f}
+table.t td.idx{padding:5px 8px;color:var(--muted);text-align:right}
+.scroll{overflow:auto;max-height:62vh;border:1px solid var(--line);border-radius:8px}
+.split{display:grid;grid-template-columns:340px 1fr;gap:18px;align-items:start}
+@media(max-width:900px){.split{grid-template-columns:1fr}}
+.list .it{padding:9px 12px;border:1px solid var(--line);border-radius:8px;margin-bottom:6px;cursor:pointer;background:var(--panel)}
+.list .it:hover{border-color:#41505f}.list .it.on{border-color:var(--accent);background:#10201f}
+.list .it .s{font-size:12px;color:var(--muted)}
+.grp{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin:14px 0 6px}
+.bar{height:8px;border-radius:4px;background:var(--panel2);overflow:hidden}.bar>i{display:block;height:100%;background:var(--accent)}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+.kv div{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:10px}
+.kv b{display:block;font-size:20px}.kv span{font-size:12px;color:var(--muted)}
+pre.log{background:#0a0d11;border:1px solid var(--line);border-radius:8px;padding:10px;max-height:240px;overflow:auto;font:12px/1.5 ui-monospace,Menlo,Consolas,monospace;color:#b8c4d0;white-space:pre-wrap;margin:0}
+.cm td,.cm th{border:1px solid var(--line);padding:5px 9px;text-align:center;font-size:12px}
+.cm th{background:var(--panel2)}
+.stage{position:relative;background:#000;border-radius:var(--radius);border:1px solid var(--line);overflow:hidden;display:flex;justify-content:center}
+canvas{display:block;max-width:100%}
+.clsbtn{border:1px solid var(--line);background:var(--panel2);border-radius:8px;padding:7px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;margin:0 8px 8px 0}
+.clsbtn kbd{background:#0a0d11;border:1px solid var(--line);border-radius:4px;padding:0 5px;font-size:11px;color:var(--muted)}
+.clsbtn.on{outline:2px solid var(--accent);background:#10201f}
+.clsbtn b{width:10px;height:10px;border-radius:50%}
+.film{display:flex;gap:6px;overflow-x:auto;padding:8px 2px}
+.film .f{flex:0 0 74px;height:74px;border-radius:6px;overflow:hidden;border:2px solid transparent;position:relative;cursor:pointer;background:#000}
+.film .f img{width:100%;height:100%;object-fit:cover}
+.film .f.on{border-color:var(--accent)}
+.film .f i{position:absolute;top:3px;right:3px;width:9px;height:9px;border-radius:50%;background:var(--ok)}
+.film .f.un i{background:var(--accent2)}
+.textcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;font-size:17px;min-height:140px;white-space:pre-wrap}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:50}
+.modal .box{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;width:min(640px,94vw);max-height:90vh;overflow:auto}
+.types{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.types label{border:1px solid var(--line);border-radius:8px;padding:10px;cursor:pointer;display:block}
+.types label:has(input:checked){border-color:var(--accent);background:#10201f}
+.types input{display:none}
+.toast{position:fixed;bottom:20px;right:20px;background:#2a1519;border:1px solid #6b2a33;color:#ffb3ba;padding:10px 16px;border-radius:8px;z-index:99;max-width:480px;white-space:pre-wrap}
+.toast.ok{background:#112a1d;border-color:#24533a;color:#a6f0c0}
+textarea.json{width:100%;font:12px ui-monospace,Menlo,Consolas,monospace;min-height:110px}
+.hint{font-size:12px;color:var(--muted)}
+.right{margin-left:auto}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo" onclick="goHome()"><i></i>ML Studio</div>
+  <span class="crumb" id="crumb"></span>
+  <span class="spacer"></span>
+  <span id="caps"></span>
+</header>
+<main id="main"></main>
+<div id="modal"></div>
+
+<script>
+/* =========================================================== helpers */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const col = i => `hsl(${(i * 67 + 160) % 360} 72% 58%)`;
+const fmt = (v, d = 3) => (typeof v === 'number' ? (Math.abs(v) >= 100 ? v.toFixed(1) : v.toFixed(d)) : v);
+
+async function api(path, o = {}) {
+  const init = {method: o.method || 'GET', headers: {}};
+  if (o.json !== undefined) { init.body = JSON.stringify(o.json); init.headers['Content-Type'] = 'application/json'; if (!o.method) init.method = 'POST'; }
+  if (o.form) { init.body = o.form; if (!o.method) init.method = 'POST'; }
+  const r = await fetch('/api' + path, init);
+  if (!r.ok) { let d = r.statusText; try { d = (await r.json()).detail || d; } catch {} throw new Error(d); }
+  return (r.headers.get('content-type') || '').includes('json') ? r.json() : r;
+}
+function toast(msg, ok) {
+  const t = document.createElement('div'); t.className = 'toast' + (ok ? ' ok' : ''); t.textContent = msg;
+  document.body.appendChild(t); setTimeout(() => t.remove(), ok ? 2200 : 6000);
+}
+const guard = fn => async function (...a) { try { return await fn.apply(this, a); } catch (e) { toast(e.message); console.error(e); } };
+
+const TYPE_INFO = {
+  tabular: ['Table', 'CSV / spreadsheet rows. Classification or regression.'],
+  image_classification: ['Image classes', 'Label each whole image (cat, dog, defect, ok ...).'],
+  object_detection: ['Object detection', 'Draw bounding boxes around objects.'],
+  segmentation: ['Segmentation', 'Draw polygon masks around objects.'],
+  text_classification: ['Text', 'Short texts, notes, messages, documents.'],
+  handwriting: ['Handwriting', 'Handwritten notes / characters with a text label.'],
+};
+const isImg = t => ['image_classification', 'object_detection', 'segmentation', 'handwriting'].includes(t);
+
+const S = {projects: [], caps: null, pid: null, meta: null, items: [], tab: 'data', runs: [], catalog: [], algo: null,
+           selRun: null, cur: 0, filter: 'all', cls: null, tool: 'draw', poll: null, page: 0, sel: new Set()};
+const fileUrl = it => `/api/projects/${S.pid}/file/${it.file}`;
+const labeled = it => {
+  const t = S.meta.type;
+  if (t === 'object_detection') return (it.boxes || []).length > 0 || it.reviewed;
+  if (t === 'segmentation') return (it.polys || []).length > 0 || it.reviewed;
+  if (t === 'tabular') { const v = (it.row || {})[S.meta.target]; return v !== undefined && v !== null && String(v) !== ''; }
+  return !!it.label;
+};
+
+/* =========================================================== home */
+async function goHome() {
+  stopPoll(); S.pid = null; $('#crumb').textContent = '';
+  S.projects = await api('/projects');
+  S.caps = S.caps || await api('/capabilities');
+  const L = S.caps.libs;
+  $('#caps').innerHTML = [['scikit-learn', 1], ['PyTorch', L.torch], ['YOLO', L.ultralytics], ['XGBoost', L.xgboost], ['LightGBM', L.lightgbm]]
+    .map(([n, ok]) => `<span class="pill ${ok ? 'ok' : 'no'}" title="${ok ? 'installed' : 'not installed (optional)'}">${ok ? '●' : '○'} ${n}</span>`).join(' ');
+  $('#main').innerHTML = `
+    <div class="row" style="margin-bottom:16px"><h2 style="margin:0">Your datasets</h2><button class="btn primary right" id="newp">+ New dataset</button></div>
+    <div class="grid cards">${S.projects.map(p => `
+      <div class="card click" data-open="${p.id}">
+        <h3>${esc(p.name)}</h3>
+        <div class="muted">${TYPE_INFO[p.type][0]}</div>
+        <div style="margin:12px 0 6px">${p.n_labeled} / ${p.n_items} labeled</div>
+        <div class="bar"><i style="width:${p.n_items ? 100 * p.n_labeled / p.n_items : 0}%"></i></div>
+        <div style="margin-top:10px">${(p.classes || []).slice(0, 6).map((c, i) => `<span class="chip"><b style="background:${col(i)}"></b>${esc(c)}</span>`).join('')}</div>
+      </div>`).join('') || '<div class="muted">No datasets yet. Create one to start labeling and training.</div>'}</div>`;
+  $('#newp').onclick = newProjectModal;
+  $$('[data-open]').forEach(e => e.onclick = () => openProject(e.dataset.open));
+}
+
+function newProjectModal() {
+  $('#modal').innerHTML = `<div class="modal"><div class="box">
+    <h2>New dataset</h2>
+    <input id="np-name" placeholder="Name (e.g. Beef cuts, Reviews, Defects)" style="width:100%;margin-bottom:12px">
+    <div class="types">${Object.entries(TYPE_INFO).map(([k, [n, d]], i) => `
+      <label><input type="radio" name="np-type" value="${k}" ${i === 1 ? 'checked' : ''}><b>${n}</b><div class="hint">${d}</div></label>`).join('')}</div>
+    <div id="np-extra"></div>
+    <h4>Classes (optional, comma separated - you can add more later)</h4>
+    <input id="np-cls" placeholder="cat, dog, bird" style="width:100%">
+    <div class="row" style="margin-top:18px;justify-content:flex-end">
+      <button class="btn" onclick="$('#modal').innerHTML=''">Cancel</button><button class="btn primary" id="np-go">Create</button></div>
+  </div></div>`;
+  const upd = () => {
+    const t = $('input[name=np-type]:checked').value;
+    $('#np-extra').innerHTML = t === 'tabular' ? `<h4>Task</h4><label><input type="radio" name="np-task" value="classification" checked> Classification (predict a category)</label>
+       &nbsp; <label><input type="radio" name="np-task" value="regression"> Regression (predict a number)</label>` : '';
+  };
+  $$('input[name=np-type]').forEach(r => r.onchange = upd); upd();
+  $('#np-go').onclick = guard(async () => {
+    const t = $('input[name=np-type]:checked').value;
+    const task = $('input[name=np-task]:checked')?.value;
+    const p = await api('/projects', {json: {name: $('#np-name').value || 'Untitled', type: t, task,
+      classes: $('#np-cls').value.split(',').map(s => s.trim()).filter(Boolean)}});
+    $('#modal').innerHTML = ''; openProject(p.id);
+  });
+}
+
+/* =========================================================== project shell */
+async function openProject(pid) {
+  S.pid = pid; S.tab = 'data'; S.tool = 'draw'; S.cur = 0; S.filter = 'all'; S.selRun = null; S.page = 0; S.sel = new Set();
+  await reload();
+  const t = S.meta.type;
+  S.cls = S.meta.classes[0] || null;
+  S.catalog = await api(`/projects/${pid}/catalog`);
+  S.algo = (S.catalog.find(c => c.available) || {}).id;
+  render();
+}
+async function reload() {
+  const d = await api(`/projects/${S.pid}`);
+  S.meta = d.meta; S.items = d.items;
+  S.runs = await api(`/projects/${S.pid}/runs`);
+}
+function stopPoll() { if (S.poll) clearInterval(S.poll); S.poll = null; }
+
+function render() {
+  stopPoll(); AN.destroy();
+  const m = S.meta, t = m.type;
+  $('#crumb').innerHTML = `/ ${esc(m.name)} <span class="pill">${TYPE_INFO[t][0]}</span>`;
+  const tabs = [['data', 'Data'], ...(t === 'tabular' ? [] : [['label', 'Label']]), ['train', 'Train'], ['results', 'Results']];
+  $('#main').innerHTML = `<div class="tabs">${tabs.map(([k, n]) => `<div class="tab ${S.tab === k ? 'on' : ''}" data-tab="${k}">${n}${k === 'results' && S.runs.length ? ` (${S.runs.length})` : ''}</div>`).join('')}
+    <span class="right" style="padding:6px"><button class="btn sm" id="exp">Export dataset</button> <button class="btn sm danger" id="delp">Delete</button></span></div>
+    <div id="pane"></div>`;
+  $$('.tab').forEach(e => e.onclick = () => { S.tab = e.dataset.tab; render(); });
+  $('#exp').onclick = () => location.href = `/api/projects/${S.pid}/export`;
+  $('#delp').onclick = guard(async () => { if (confirm('Delete this dataset and all its models?')) { await api(`/projects/${S.pid}`, {method: 'DELETE'}); goHome(); } });
+  ({data: tabData, label: tabLabel, train: tabTrain, results: tabResults})[S.tab]();
+}
+
+/* =========================================================== DATA tab */
+function classManager() {
+  const cs = S.meta.classes;
+  return `<h4>Classes / labels</h4><div id="clsbox">${cs.map((c, i) => `<span class="chip"><b style="background:${col(i)}"></b>${esc(c)} <x data-delcls="${i}">✕</x></span>`).join('')}
+    <input id="newcls" placeholder="+ add class, press Enter" style="width:190px;margin-bottom:6px"></div>`;
+}
+function bindClassManager() {
+  const save = guard(async cs => { S.meta = await api(`/projects/${S.pid}/classes`, {json: {classes: cs}}); if (!S.meta.classes.includes(S.cls)) S.cls = S.meta.classes[0] || null; render(); });
+  const nc = $('#newcls');
+  if (nc) nc.onkeydown = e => { if (e.key === 'Enter' && nc.value.trim()) save([...S.meta.classes, ...nc.value.split(',')]); };
+  $$('[data-delcls]').forEach(x => x.onclick = () => save(S.meta.classes.filter((_, i) => i !== +x.dataset.delcls)));
+}
+function dropzone(accept, text) {
+  return `<div class="drop" id="drop">${text}<input type="file" id="file" multiple accept="${accept}" hidden></div>`;
+}
+function bindDrop() {
+  const d = $('#drop'), f = $('#file'); if (!d) return;
+  const up = guard(async files => {
+    const fd = new FormData(); [...files].forEach(x => fd.append('files', x));
+    d.textContent = 'Uploading ' + files.length + ' file(s)...';
+    const r = await api(`/projects/${S.pid}/upload`, {form: fd});
+    if (r.errors?.length) toast(r.errors.join('\n'));
+    else toast(`Added ${r.added} item(s)`, true);
+    await reload(); render();
+  });
+  d.onclick = () => f.click(); f.onchange = () => f.files.length && up(f.files);
+  d.ondragover = e => { e.preventDefault(); d.classList.add('over'); };
+  d.ondragleave = () => d.classList.remove('over');
+  d.ondrop = e => { e.preventDefault(); d.classList.remove('over'); up(e.dataTransfer.files); };
+}
+
+function tabData() {
+  const m = S.meta, t = m.type, it = S.items;
+  const nl = it.filter(labeled).length;
+  let h = `<div class="row"><h2 style="margin:0">${it.length} items</h2><span class="muted">${nl} labeled</span></div>`;
+  if (t !== 'tabular') h += classManager();
+  if (isImg(t)) {
+    h += `<h4>Add images</h4>` + dropzone('image/*,.zip', 'Drop images here or click to browse.<br><span class="hint">A .zip with one folder per class (cat/1.jpg, dog/2.jpg) imports labels automatically.</span>');
+    h += `<div class="row" style="margin:14px 0 8px"><h4 style="margin:0">Images</h4><button class="btn sm" id="selall">Select all</button>
+      <button class="btn sm danger" id="delsel" ${S.sel.size ? '' : 'disabled'}>Delete selected (${S.sel.size})</button></div>
+      <div class="thumbs">${it.slice(S.page * 300, S.page * 300 + 300).map((x, i) => `<div class="thumb ${S.sel.has(x.id) ? 'sel' : ''}" data-i="${S.page * 300 + i}">
+        <input type="checkbox" class="ck" data-id="${x.id}" ${S.sel.has(x.id) ? 'checked' : ''}><img loading="lazy" src="${fileUrl(x)}">
+        <div class="tag">${esc(x.label || (x.boxes?.length ? x.boxes.length + ' boxes' : x.polys?.length ? x.polys.length + ' polygons' : '— unlabeled'))}</div></div>`).join('')}</div>
+      ${it.length > 300 ? `<div class="row" style="margin-top:10px"><button class="btn sm" id="pp">Prev</button><span class="muted">${S.page * 300 + 1}-${Math.min(it.length, S.page * 300 + 300)}</span><button class="btn sm" id="np">Next</button></div>` : ''}`;
+  } else if (t === 'text_classification') {
+    h += `<h4>Add text</h4><div class="row"><textarea id="newtext" rows="2" style="flex:1;min-width:260px" placeholder="Type or paste a text snippet..."></textarea>
+      <select id="newlab"><option value="">(label later)</option>${m.classes.map(c => `<option>${esc(c)}</option>`).join('')}</select><button class="btn primary" id="addtext">Add</button></div>
+      <div style="height:10px"></div>` + dropzone('.txt,.csv', 'Or drop a .txt file (one snippet per line) or a .csv with <code>text,label</code> columns');
+    h += `<h4>Texts</h4><div class="scroll"><table class="t"><tr><th>#</th><th>Text</th><th>Label</th><th></th></tr>${it.slice(0, 500).map((x, i) => `
+      <tr><td class="idx">${i + 1}</td><td><input data-tx="${x.id}" value="${esc(x.text)}"></td>
+      <td><select data-tl="${x.id}"><option value=""></option>${m.classes.map(c => `<option ${x.label === c ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select></td>
+      <td class="idx"><x data-dx="${x.id}" style="cursor:pointer;color:var(--danger)">✕</x></td></tr>`).join('')}</table></div>`;
+  } else if (t === 'tabular') {
+    h += tabularUI();
+  }
+  $('#pane').innerHTML = h;
+  bindClassManager(); bindDrop();
+  if (isImg(t)) {
+    $$('.thumb').forEach(e => e.onclick = ev => { if (ev.target.classList.contains('ck')) return; S.cur = +e.dataset.i; S.filter = 'all'; S.tab = 'label'; render(); });
+    $$('.ck').forEach(c => c.onchange = () => { c.checked ? S.sel.add(c.dataset.id) : S.sel.delete(c.dataset.id); tabData(); });
+    $('#selall').onclick = () => { S.items.forEach(x => S.sel.add(x.id)); tabData(); };
+    $('#delsel').onclick = guard(async () => { if (!confirm(`Delete ${S.sel.size} images?`)) return; await api(`/projects/${S.pid}/delete-items`, {json: {ids: [...S.sel]}}); S.sel.clear(); await reload(); render(); });
+    if ($('#pp')) { $('#pp').onclick = () => { S.page = Math.max(0, S.page - 1); tabData(); }; $('#np').onclick = () => { S.page = Math.min(Math.floor((it.length - 1) / 300), S.page + 1); tabData(); }; }
+  } else if (t === 'text_classification') {
+    $('#addtext').onclick = guard(async () => { const tx = $('#newtext').value.trim(); if (!tx) return;
+      await api(`/projects/${S.pid}/items`, {json: {text: tx, label: $('#newlab').value || null}}); await reload(); render(); });
+    $$('[data-tx]').forEach(e => e.onchange = guard(async () => { await api(`/projects/${S.pid}/items/${e.dataset.tx}`, {method: 'PATCH', json: {data: {text: e.value}}}); await reload(); }));
+    $$('[data-tl]').forEach(e => e.onchange = guard(async () => { await api(`/projects/${S.pid}/items/${e.dataset.tl}`, {method: 'PATCH', json: {data: {label: e.value || null}}}); await reload(); render(); }));
+    $$('[data-dx]').forEach(e => e.onclick = guard(async () => { await api(`/projects/${S.pid}/delete-items`, {json: {ids: [e.dataset.dx]}}); await reload(); render(); }));
+  } else bindTabular();
+}
+
+/* ---- tabular editor */
+function tabularUI() {
+  const m = S.meta, cols = m.columns, PS = 100;
+  const rows = S.items.slice(S.page * PS, S.page * PS + PS);
+  return `<div class="row" style="margin-top:12px">
+      <label>Target column <select id="tgt"><option value="">— choose —</option>${cols.map(c => `<option ${m.target === c ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select></label>
+      <label>Task <select id="task"><option value="classification" ${m.task !== 'regression' ? 'selected' : ''}>classification</option><option value="regression" ${m.task === 'regression' ? 'selected' : ''}>regression</option></select></label>
+      <span class="right"></span><button class="btn sm" id="addrow">+ Row</button><button class="btn sm" id="addcol">+ Column</button></div>
+    <div style="margin:12px 0">${dropzone('.csv,.tsv,.txt', 'Drop a CSV file here (first row = column names), or click to browse')}</div>
+    <h4>Feature columns <span class="hint">(untick to ignore a column)</span></h4>
+    <div>${cols.filter(c => c !== m.target).map(c => `<label class="chip"><input type="checkbox" data-ig="${esc(c)}" ${(m.ignore || []).includes(c) ? '' : 'checked'}> ${esc(c)}</label>`).join('') || '<span class="muted">Upload a CSV to see columns.</span>'}</div>
+    <div class="scroll" style="margin-top:12px"><table class="t"><tr><th>#</th>${cols.map(c => `<th class="${c === m.target ? 'tgt' : ''}">${esc(c)}${c === m.target ? ' (target)' : ''}</th>`).join('')}<th></th></tr>
+    ${rows.map((x, i) => `<tr><td class="idx">${S.page * PS + i + 1}</td>${cols.map(c => `<td><input data-r="${x.id}" data-c="${esc(c)}" value="${esc((x.row || {})[c] ?? '')}"></td>`).join('')}
+      <td class="idx"><x data-dr="${x.id}" style="cursor:pointer;color:var(--danger)">✕</x></td></tr>`).join('')}</table></div>
+    ${S.items.length > PS ? `<div class="row" style="margin-top:10px"><button class="btn sm" id="pp">Prev</button><span class="muted">rows ${S.page * PS + 1}-${Math.min(S.items.length, S.page * PS + PS)} of ${S.items.length}</span><button class="btn sm" id="np">Next</button></div>` : ''}`;
+}
+function bindTabular() {
+  const cfg = guard(async d => { S.meta = await api(`/projects/${S.pid}/tabular`, {json: d}); S.catalog = await api(`/projects/${S.pid}/catalog`); S.algo = (S.catalog.find(c => c.available) || {}).id; render(); });
+  $('#tgt').onchange = e => cfg({target: e.target.value || null});
+  $('#task').onchange = e => cfg({task: e.target.value});
+  $$('[data-ig]').forEach(c => c.onchange = () => { const ig = new Set(S.meta.ignore || []); c.checked ? ig.delete(c.dataset.ig) : ig.add(c.dataset.ig); cfg({ignore: [...ig]}); });
+  $('#addcol').onclick = () => { const n = prompt('New column name'); if (n && !S.meta.columns.includes(n)) cfg({columns: [...S.meta.columns, n]}); };
+  $('#addrow').onclick = guard(async () => { await api(`/projects/${S.pid}/items`, {json: {row: {}}}); await reload(); S.page = Math.floor((S.items.length - 1) / 100); render(); });
+  $$('input[data-r]').forEach(e => e.onchange = guard(async () => {
+    const it = S.items.find(x => x.id === e.dataset.r); const row = {...(it.row || {}), [e.dataset.c]: e.value};
+    it.row = row; await api(`/projects/${S.pid}/items/${it.id}`, {method: 'PATCH', json: {data: {row}}}); }));
+  $$('[data-dr]').forEach(e => e.onclick = guard(async () => { await api(`/projects/${S.pid}/delete-items`, {json: {ids: [e.dataset.dr]}}); await reload(); render(); }));
+  if ($('#pp')) { $('#pp').onclick = () => { S.page = Math.max(0, S.page - 1); render(); }; $('#np').onclick = () => { S.page = Math.min(Math.floor((S.items.length - 1) / 100), S.page + 1); render(); }; }
+}
+
+/* =========================================================== LABEL tab */
+function viewItems() {
+  const f = S.filter;
+  return S.items.map((x, i) => [x, i]).filter(([x]) => f === 'all' || (f === 'unlabeled' ? !labeled(x) : labeled(x)));
+}
+function classButtons(active, withKeys = true) {
+  return S.meta.classes.map((c, i) => `<button class="clsbtn ${active === c ? 'on' : ''}" data-cls="${esc(c)}"><b style="background:${col(i)}"></b>${esc(c)}${withKeys && i < 9 ? `<kbd>${i + 1}</kbd>` : ''}</button>`).join('')
+    + `<input id="addcls" placeholder="+ new class" style="width:120px;margin-bottom:8px">`;
+}
+function filmstrip(list) {
+  if (!isImg(S.meta.type)) return '';
+  return `<div class="film">${list.slice(Math.max(0, S.cur - 15), S.cur + 60).map(([x, i], k) => { const idx = Math.max(0, S.cur - 15) + k;
+    return `<div class="f ${idx === S.cur ? 'on' : ''} ${labeled(x) ? '' : 'un'}" data-go="${idx}"><img loading="lazy" src="${fileUrl(x)}"><i></i></div>`; }).join('')}</div>`;
+}
+
+function tabLabel() {
+  const m = S.meta, t = m.type, list = viewItems();
+  if (S.cur >= list.length) S.cur = Math.max(0, list.length - 1);
+  const cur = list[S.cur] && list[S.cur][0];
+  const nl = S.items.filter(labeled).length;
+  const head = `<div class="row" style="margin-bottom:10px">
+      <button class="btn" id="prev">← Prev</button><button class="btn" id="next">Next →</button>
+      <span class="muted">${list.length ? S.cur + 1 : 0} / ${list.length}</span>
+      <select id="filt"><option value="all">All items</option><option value="unlabeled">Unlabeled only</option><option value="labeled">Labeled only</option></select>
+      <span class="muted right">${nl}/${S.items.length} labeled</span></div>`;
+  if (!cur) { $('#pane').innerHTML = head + `<div class="card muted">Nothing to show here. ${S.items.length ? 'Change the filter.' : 'Add data in the Data tab first.'}</div>`; bindNav(list); return; }
+  let body = '';
+  if (t === 'image_classification') {
+    body = `<div class="stage" style="height:min(58vh,520px)"><img src="${fileUrl(cur)}" style="max-width:100%;max-height:100%;object-fit:contain"></div>
+      <div style="margin-top:12px">${classButtons(cur.label)}</div><div class="hint">Press <kbd>1</kbd>-<kbd>9</kbd> to label and jump to the next image, <kbd>←</kbd><kbd>→</kbd> to move, <kbd>Backspace</kbd> to clear.</div>${suggestBar()}`;
+  } else if (t === 'handwriting') {
+    body = `<div class="stage" style="height:min(50vh,440px);background:#fff"><img src="${fileUrl(cur)}" style="max-width:100%;max-height:100%;object-fit:contain"></div>
+      <div class="row" style="margin-top:12px"><input id="hw" value="${esc(cur.label || '')}" placeholder="Type what the note / character says, press Enter" style="flex:1;min-width:260px;font-size:18px"><button class="btn primary" id="hwsave">Save &amp; next</button></div>
+      <div style="margin-top:10px">${m.classes.slice(0, 40).map(c => `<button class="clsbtn" data-cls="${esc(c)}">${esc(c)}</button>`).join('')}</div>
+      <div class="hint">Each distinct text becomes a class (a letter, a digit, a word). For letters/digits, use single characters.</div>${suggestBar()}`;
+  } else if (t === 'text_classification') {
+    body = `<textarea id="txt" class="textcard" style="width:100%">${esc(cur.text)}</textarea>
+      <div style="margin-top:12px">${classButtons(cur.label)}</div><div class="hint">Keys <kbd>1</kbd>-<kbd>9</kbd> label and advance.</div>`;
+  } else {
+    const seg = t === 'segmentation';
+    body = `<div class="row" style="margin-bottom:8px">
+        <button class="btn sm ${S.tool === 'draw' ? 'primary' : ''}" data-tool="draw">${seg ? 'Polygon (P)' : 'Box (B)'}</button>
+        <button class="btn sm ${S.tool === 'select' ? 'primary' : ''}" data-tool="select">Select / move (V)</button>
+        <button class="btn sm" id="delshape">Delete selected (Del)</button><button class="btn sm" id="clearshapes">Clear all</button>
+        <button class="btn sm" id="noobj">No objects here ✓</button>
+        <span class="hint">${seg ? 'Click to add points. Double-click, Enter, or click the first point to close. Esc cancels.' : 'Drag to draw a box. Switch to Select to move or resize.'}</span></div>
+      <div class="stage" id="stage"><canvas id="cv"></canvas></div>
+      <div style="margin-top:12px">${classButtons(S.cls)}</div>${suggestBar()}`;
+  }
+  $('#pane').innerHTML = head + body + filmstrip(list);
+  $('#filt').value = S.filter;
+  bindNav(list);
+  $$('[data-go]').forEach(e => e.onclick = () => { S.cur = +e.dataset.go; tabLabel(); });
+  const ac = $('#addcls'); if (ac) ac.onkeydown = guard(async e => { if (e.key === 'Enter' && ac.value.trim()) {
+    S.meta = await api(`/projects/${S.pid}/classes`, {json: {classes: [...S.meta.classes, ac.value.trim()]}}); S.cls = ac.value.trim(); tabLabel(); } });
+  bindSuggest(cur);
+
+  if (t === 'image_classification' || t === 'text_classification') {
+    $$('[data-cls]').forEach(b => b.onclick = () => setLabel(cur, b.dataset.cls, list));
+    const tx = $('#txt'); if (tx) tx.onchange = guard(async () => { cur.text = tx.value; await api(`/projects/${S.pid}/items/${cur.id}`, {method: 'PATCH', json: {data: {text: tx.value}}}); });
+  } else if (t === 'handwriting') {
+    const hw = $('#hw'); hw.focus(); hw.setSelectionRange(hw.value.length, hw.value.length);
+    const save = () => setLabel(cur, hw.value.trim(), list);
+    hw.onkeydown = e => { if (e.key === 'Enter') save(); };
+    $('#hwsave').onclick = save;
+    $$('[data-cls]').forEach(b => b.onclick = () => { hw.value = b.dataset.cls; save(); });
+  } else {
+    AN.init(cur, t === 'segmentation');
+    $$('[data-cls]').forEach(b => b.onclick = () => { S.cls = b.dataset.cls; AN.setClass(S.cls); $$('.clsbtn').forEach(x => x.classList.toggle('on', x.dataset.cls === S.cls)); });
+    $$('[data-tool]').forEach(b => b.onclick = () => { S.tool = b.dataset.tool; AN.cancelDraft(); $$('[data-tool]').forEach(x => x.classList.toggle('primary', x.dataset.tool === S.tool)); });
+    $('#delshape').onclick = () => AN.deleteSel(); $('#clearshapes').onclick = () => AN.clear();
+    $('#noobj').onclick = guard(async () => { await AN.save(true); go(1, list); });
+  }
+}
+function bindNav(list) {
+  $('#prev').onclick = () => go(-1, list); $('#next').onclick = () => go(1, list);
+  $('#filt').onchange = e => { S.filter = e.target.value; S.cur = 0; tabLabel(); };
+}
+function go(d, list) { S.cur = Math.min(Math.max(0, S.cur + d), Math.max(0, viewItems().length - 1)); tabLabel(); }
+const setLabel = guard(async (item, label, list) => {
+  const wasLabeled = labeled(item);
+  item.label = label || null;
+  await api(`/projects/${S.pid}/items/${item.id}`, {method: 'PATCH', json: {data: {label: label || null}}});
+  if (label && !S.meta.classes.includes(label)) S.meta.classes.push(label);
+  if (S.filter === 'unlabeled' && !wasLabeled) {/* list shrinks, stay */} else if (label) S.cur++;
+  tabLabel();
+});
+
+/* ---- auto-label suggestions from a trained model */
+function suggestBar() {
+  const done = S.runs.filter(r => r.status === 'done' && r.type === S.meta.type);
+  if (!done.length) return '';
+  return `<div class="row" style="margin-top:6px"><span class="hint">Model-assisted labeling:</span>
+    <select id="sugrun">${done.map(r => `<option value="${r.id}">${esc(r.algo.split(':')[1])} · ${primary(r)[1]}</option>`).join('')}</select>
+    <button class="btn sm" id="sug">Suggest for this item</button>
+    ${['object_detection', 'segmentation'].includes(S.meta.type) ? `<label class="hint">min conf <input id="sugconf" type="number" min="0.05" max="0.95" step="0.05" value="0.25" style="width:70px"></label><button class="btn sm" id="sugall">Auto-label all unlabeled</button>` : ''}
+    <span id="sugout" class="hint"></span></div>`;
+}
+function bindSuggest(cur) {
+  if (!$('#sug')) return;
+  const t = S.meta.type;
+  $('#sug').onclick = guard(async () => {
+    const r = await api(`/projects/${S.pid}/predict`, {json: {run: $('#sugrun').value, item: cur.id, conf: +($('#sugconf')?.value || 0.25)}});
+    if (t === 'object_detection' || t === 'segmentation') { AN.addSuggestions(r); $('#sugout').textContent = `${(r.boxes || []).length} suggestions added - review and fix them.`; }
+    else if (r.label) { $('#sugout').innerHTML = `Suggested: <a href="#" id="acc">${esc(r.label)}</a> (${Math.round(100 * (r.scores?.[0]?.p || 0))}%)`; $('#acc').onclick = e => { e.preventDefault(); setLabel(cur, r.label, viewItems()); }; }
+  });
+  if ($('#sugall')) $('#sugall').onclick = guard(async () => {
+    const todo = S.items.filter(x => !labeled(x)); let n = 0;
+    for (const x of todo) {
+      $('#sugout').textContent = `Labeling ${++n}/${todo.length}...`;
+      const r = await api(`/projects/${S.pid}/predict`, {json: {run: $('#sugrun').value, item: x.id, conf: +($('#sugconf').value || 0.25)}});
+      const data = t === 'segmentation' ? {polys: (r.polys || []).map(p => ({cls: p.cls, pts: p.pts}))} : {boxes: (r.boxes || []).map(b => ({cls: b.cls, x: b.x, y: b.y, w: b.w, h: b.h}))};
+      await api(`/projects/${S.pid}/items/${x.id}`, {method: 'PATCH', json: {data}});
+    }
+    await reload(); S.filter = 'all'; render(); toast('Auto-labeled. Review the images and correct mistakes.', true);
+  });
+}
+
+/* ---- annotation canvas (boxes & polygons) */
+const AN = {
+  cv: null, ctx: null, img: null, item: null, seg: false, shapes: [], sel: -1, draft: null, drag: null, rect: null, cls: null, hover: null,
+  destroy() { if (this.cv) { window.removeEventListener('resize', this._rs); } this.cv = null; },
+  init(item, seg) {
+    this.item = item; this.seg = seg; this.cls = S.cls; this.sel = -1; this.draft = null; this.drag = null;
+    this.shapes = JSON.parse(JSON.stringify(seg ? (item.polys || []) : (item.boxes || [])));
+    this.cv = $('#cv'); this.ctx = this.cv.getContext('2d');
+    this.img = new Image(); this.img.onload = () => { this.fit(); this.draw(); }; this.img.src = fileUrl(item);
+    this._rs = () => { this.fit(); this.draw(); }; window.addEventListener('resize', this._rs);
+    const c = this.cv;
+    c.onmousedown = e => this.down(e); c.onmousemove = e => this.move(e); window.onmouseup = e => this.up(e);
+    c.ondblclick = e => { if (this.seg && this.draft) { this.draft.pts.pop(); this.closePoly(); } };
+  },
+  fit() {
+    const w = $('#stage').clientWidth, maxH = Math.min(window.innerHeight * 0.66, 700);
+    const s = Math.min(w / this.img.width, maxH / this.img.height, 3);
+    this.cv.width = Math.round(this.img.width * s); this.cv.height = Math.round(this.img.height * s);
+    this.rect = {x: 0, y: 0, w: this.cv.width, h: this.cv.height};
+  },
+  pt(e) { const r = this.cv.getBoundingClientRect(); return [Math.min(1, Math.max(0, (e.clientX - r.left) / r.width)), Math.min(1, Math.max(0, (e.clientY - r.top) / r.height))]; },
+  px(p) { return [p[0] * this.cv.width, p[1] * this.cv.height]; },
+  setClass(c) { this.cls = c; if (this.sel >= 0) { this.shapes[this.sel].cls = c; this.draw(); this.save(); } },
+  draw() {
+    const g = this.ctx, W = this.cv.width, H = this.cv.height; g.clearRect(0, 0, W, H); g.drawImage(this.img, 0, 0, W, H);
+    const all = [...this.shapes]; if (this.draft && !this.seg) all.push(this.draft);
+    all.forEach((s, i) => {
+      const k = Math.max(0, S.meta.classes.indexOf(s.cls)), c = col(k), selected = i === this.sel;
+      g.lineWidth = selected ? 3 : 2; g.strokeStyle = c; g.fillStyle = c.replace(')', ' / 0.2)').replace('hsl(', 'hsl(');
+      let lx, ly;
+      if (this.seg) {
+        g.beginPath(); s.pts.forEach((p, j) => { const [x, y] = this.px(p); j ? g.lineTo(x, y) : g.moveTo(x, y); }); g.closePath(); g.fill(); g.stroke();
+        [lx, ly] = this.px(s.pts[0]);
+        if (selected) s.pts.forEach(p => { const [x, y] = this.px(p); g.fillStyle = '#fff'; g.fillRect(x - 3, y - 3, 6, 6); });
+      } else {
+        const [x, y] = this.px([s.x, s.y]), w = s.w * W, h = s.h * H; g.fillRect(x, y, w, h); g.strokeRect(x, y, w, h); lx = x; ly = y;
+        if (selected) [[x, y], [x + w, y], [x, y + h], [x + w, y + h]].forEach(([a, b]) => { g.fillStyle = '#fff'; g.fillRect(a - 4, b - 4, 8, 8); });
+      }
+      g.font = '12px sans-serif'; const label = s.cls + (s.conf ? ' ' + Math.round(s.conf * 100) + '%' : ''), tw = g.measureText(label).width;
+      g.fillStyle = c; g.fillRect(lx, Math.max(0, ly - 16), tw + 8, 16); g.fillStyle = '#04201c'; g.fillText(label, lx + 4, Math.max(12, ly - 4));
+    });
+    if (this.seg && this.draft) {
+      const c = col(Math.max(0, S.meta.classes.indexOf(this.draft.cls))); g.strokeStyle = c; g.lineWidth = 2; g.beginPath();
+      this.draft.pts.forEach((p, j) => { const [x, y] = this.px(p); j ? g.lineTo(x, y) : g.moveTo(x, y); });
+      if (this.hover) { const [x, y] = this.px(this.hover); g.lineTo(x, y); } g.stroke();
+      this.draft.pts.forEach(p => { const [x, y] = this.px(p); g.fillStyle = c; g.fillRect(x - 3, y - 3, 6, 6); });
+    }
+  },
+  hit(p) {
+    for (let i = this.shapes.length - 1; i >= 0; i--) {
+      const s = this.shapes[i];
+      if (this.seg) { if (inPoly(p, s.pts)) return i; }
+      else if (p[0] >= s.x && p[0] <= s.x + s.w && p[1] >= s.y && p[1] <= s.y + s.h) return i;
+    }
+    return -1;
+  },
+  handle(p) {
+    if (this.sel < 0 || this.seg) return null; const s = this.shapes[this.sel], tol = 8 / this.cv.width;
+    for (const [hx, hy, n] of [[s.x, s.y, 'nw'], [s.x + s.w, s.y, 'ne'], [s.x, s.y + s.h, 'sw'], [s.x + s.w, s.y + s.h, 'se']])
+      if (Math.abs(p[0] - hx) < tol && Math.abs(p[1] - hy) < tol * 1.5) return n;
+    return null;
+  },
+  down(e) {
+    const p = this.pt(e);
+    if (!S.cls && S.tool === 'draw') { toast('Add or pick a class first.'); return; }
+    if (S.tool === 'draw') {
+      if (this.seg) {
+        if (!this.draft) this.draft = {cls: S.cls, pts: []};
+        const f = this.draft.pts[0];
+        if (f && this.draft.pts.length >= 3 && Math.hypot((p[0] - f[0]) * this.cv.width, (p[1] - f[1]) * this.cv.height) < 10) return this.closePoly();
+        this.draft.pts.push(p);
+      } else { this.draft = {cls: S.cls, x: p[0], y: p[1], w: 0, h: 0, _o: p}; this.drag = 'new'; }
+    } else {
+      const h = this.handle(p);
+      if (h) { this.drag = {h}; return; }
+      this.sel = this.hit(p);
+      if (this.sel >= 0) { this.drag = {mv: p, orig: JSON.parse(JSON.stringify(this.shapes[this.sel]))}; S.cls = this.shapes[this.sel].cls; $$('.clsbtn').forEach(x => x.classList.toggle('on', x.dataset.cls === S.cls)); }
+    }
+    this.draw();
+  },
+  move(e) {
+    const p = this.pt(e); this.hover = p;
+    if (this.drag === 'new' && this.draft) { const o = this.draft._o; Object.assign(this.draft, {x: Math.min(o[0], p[0]), y: Math.min(o[1], p[1]), w: Math.abs(p[0] - o[0]), h: Math.abs(p[1] - o[1])}); }
+    else if (this.drag && this.drag.h) {
+      const s = this.shapes[this.sel], r = s.x + s.w, b = s.y + s.h, h = this.drag.h;
+      const nx = h.includes('w') ? Math.min(p[0], r - 0.01) : s.x, ny = h.includes('n') ? Math.min(p[1], b - 0.01) : s.y;
+      const nr = h.includes('e') ? Math.max(p[0], s.x + 0.01) : r, nb = h.includes('s') ? Math.max(p[1], s.y + 0.01) : b;
+      Object.assign(s, {x: nx, y: ny, w: nr - nx, h: nb - ny});
+    } else if (this.drag && this.drag.mv) {
+      const dx = p[0] - this.drag.mv[0], dy = p[1] - this.drag.mv[1], o = this.drag.orig, s = this.shapes[this.sel];
+      if (this.seg) s.pts = o.pts.map(q => [Math.min(1, Math.max(0, q[0] + dx)), Math.min(1, Math.max(0, q[1] + dy))]);
+      else { s.x = Math.min(1 - o.w, Math.max(0, o.x + dx)); s.y = Math.min(1 - o.h, Math.max(0, o.y + dy)); }
+    }
+    this.cv.style.cursor = S.tool === 'draw' ? 'crosshair' : (this.handle(p) ? 'nwse-resize' : this.hit(p) >= 0 ? 'move' : 'default');
+    this.draw();
+  },
+  up() {
+    if (this.drag === 'new' && this.draft) {
+      const d = this.draft; this.draft = null;
+      if (d.w > 0.01 && d.h > 0.01) { delete d._o; this.shapes.push(d); this.sel = this.shapes.length - 1; this.save(); }
+    } else if (this.drag) this.save();
+    this.drag = null; if (this.cv) this.draw();
+  },
+  closePoly() { if (this.draft && this.draft.pts.length >= 3) { this.shapes.push(this.draft); this.sel = this.shapes.length - 1; this.save(); } this.draft = null; this.draw(); },
+  cancelDraft() { this.draft = null; this.drag = null; if (this.cv) this.draw(); },
+  deleteSel() { if (this.sel >= 0) { this.shapes.splice(this.sel, 1); this.sel = -1; this.save(); this.draw(); } },
+  clear() { if (this.shapes.length && confirm('Remove all shapes on this image?')) { this.shapes = []; this.sel = -1; this.save(); this.draw(); } },
+  addSuggestions(r) {
+    const add = this.seg ? (r.polys || []) : (r.boxes || []);
+    add.forEach(s => this.shapes.push(s)); this.save(); this.draw();
+  },
+  _q: Promise.resolve(),
+  save() {
+    // snapshot now, send in order so quick edits never overwrite each other out of sequence
+    const clean = this.shapes.map(s => { const o = {...s}; delete o.conf; return o; });
+    const data = {[this.seg ? 'polys' : 'boxes']: clean, reviewed: true};
+    const item = this.item, pid = S.pid;
+    Object.assign(item, JSON.parse(JSON.stringify(data)));
+    const el = $('.muted.right'); if (el) el.textContent = `${S.items.filter(labeled).length}/${S.items.length} labeled`;
+    this._q = this._q.then(async () => {
+      await api(`/projects/${pid}/items/${item.id}`, {method: 'PATCH', json: {data}});
+      S.meta = (await api(`/projects/${pid}`)).meta;
+    }).catch(e => toast(e.message));
+    return this._q;
+  },
+};
+function inPoly(p, pts) { let c = false; for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) { const [xi, yi] = pts[i], [xj, yj] = pts[j];
+  if ((yi > p[1]) !== (yj > p[1]) && p[0] < (xj - xi) * (p[1] - yi) / (yj - yi) + xi) c = !c; } return c; }
+
+document.addEventListener('keydown', e => {
+  if (S.tab !== 'label' || !S.pid) return;
+  const tag = (e.target.tagName || '').toLowerCase(); if (['input', 'textarea', 'select'].includes(tag)) return;
+  const t = S.meta.type, list = viewItems(), cur = list[S.cur] && list[S.cur][0]; if (!cur) return;
+  if (e.key === 'ArrowRight' || e.key === 'd') { go(1, list); return; }
+  if (e.key === 'ArrowLeft' || e.key === 'a') { go(-1, list); return; }
+  const n = parseInt(e.key); const cs = S.meta.classes;
+  if (n >= 1 && n <= 9 && cs[n - 1]) {
+    if (t === 'image_classification' || t === 'text_classification') setLabel(cur, cs[n - 1], list);
+    else if (['object_detection', 'segmentation'].includes(t)) { S.cls = cs[n - 1]; AN.setClass(S.cls); $$('.clsbtn').forEach(x => x.classList.toggle('on', x.dataset.cls === S.cls)); }
+  }
+  if (e.key === 'Backspace' && (t === 'image_classification' || t === 'text_classification')) setLabel(cur, null, list);
+  if (['object_detection', 'segmentation'].includes(t)) {
+    if (e.key === 'Delete' || e.key === 'Backspace') AN.deleteSel();
+    if (e.key === 'Enter') AN.closePoly();
+    if (e.key === 'Escape') AN.cancelDraft();
+    const setTool = k => { S.tool = k; AN.cancelDraft(); $$('[data-tool]').forEach(x => x.classList.toggle('primary', x.dataset.tool === k)); };
+    if (e.key === 'v') setTool('select'); if (e.key === 'b' || e.key === 'p') setTool('draw');
+  }
+});
+
+/* =========================================================== TRAIN tab */
+function tabTrain() {
+  const m = S.meta, t = m.type, cat = S.catalog;
+  const groups = {}; cat.forEach(c => (groups[c.group] = groups[c.group] || []).push(c));
+  const sel = cat.find(c => c.id === S.algo) || cat[0];
+  const nl = S.items.filter(labeled).length;
+  const active = S.runs.find(r => r.status === 'running');
+  $('#pane').innerHTML = `<div class="split">
+    <div><h2>Choose a model</h2><input id="msearch" placeholder="Search models..." style="width:100%;margin-bottom:8px">
+      <div class="list" id="mlist" style="max-height:64vh;overflow:auto">${Object.entries(groups).map(([g, ms]) => `<div class="grp">${esc(g)}</div>` +
+        ms.map(c => `<div class="it ${c.id === S.algo ? 'on' : ''}" data-algo="${esc(c.id)}" data-name="${esc(c.label.toLowerCase())}" ${c.available ? '' : 'style="opacity:.55"'}>${esc(c.label)}${c.available ? '' : `<div class="s">needs: ${esc(c.note || '')}</div>`}</div>`).join('')).join('')}</div></div>
+    <div><h2>Train</h2>
+      <div class="card"><div class="row"><b>${sel ? esc(sel.label) : '—'}</b><span class="muted right">${nl} labeled items</span></div>
+        ${sel && !sel.available ? `<div class="hint" style="color:var(--accent2);margin:8px 0">Not installed. Run: <code>${esc(sel.note)}</code> and restart the app.</div>` : ''}
+        <h4>Hyperparameters (JSON - any library argument works)</h4>
+        <textarea class="json" id="params">${esc(JSON.stringify(sel ? sel.params : {}, null, 1))}</textarea>
+        <div class="row" style="margin-top:12px"><label>Validation split <input id="split" type="range" min="0.1" max="0.5" step="0.05" value="0.2" style="vertical-align:middle"> <b id="splitv">20%</b></label>
+          <span class="right"></span>
+          ${active ? `<button class="btn danger" id="stop">Stop training</button>` : ''}
+          <button class="btn primary" id="go" ${sel && sel.available && !active ? '' : 'disabled'}>Train ▶</button></div>
+        ${t === 'tabular' && !m.target ? '<div class="hint" style="color:var(--accent2);margin-top:8px">Pick a target column in the Data tab first.</div>' : ''}
+      </div>
+      <div id="live"></div></div></div>`;
+  $('#msearch').oninput = e => { const q = e.target.value.toLowerCase(); $$('#mlist .it').forEach(x => x.style.display = x.dataset.name.includes(q) ? '' : 'none'); };
+  $$('[data-algo]').forEach(e => e.onclick = () => { S.algo = e.dataset.algo; tabTrain(); });
+  $('#split').oninput = e => $('#splitv').textContent = Math.round(e.target.value * 100) + '%';
+  $('#go').onclick = guard(async () => {
+    let params; try { params = JSON.parse($('#params').value || '{}'); } catch { throw new Error('Hyperparameters must be valid JSON'); }
+    const r = await api(`/projects/${S.pid}/train`, {json: {algo: S.algo, params, test_size: +$('#split').value}});
+    S.runs.unshift(r); S.selRun = r.id; tabTrain();
+  });
+  if ($('#stop')) $('#stop').onclick = guard(async () => { await api(`/projects/${S.pid}/runs/${active.id}/cancel`, {method: 'POST'}); toast('Stopping after the current epoch...', true); });
+  showLive();
+}
+function showLive() {
+  stopPoll();
+  const run = S.runs.find(r => r.id === S.selRun) || S.runs[0];
+  const el = $('#live'); if (!el) return;
+  if (!run) { el.innerHTML = ''; return; }
+  const draw = r => {
+    el.innerHTML = `<h4>Latest run — ${esc(r.algo.split(':')[1])} <span class="pill ${r.status === 'done' ? 'ok' : ''}">${r.status}</span></h4>
+      <div id="charts"></div><pre class="log" id="log">${esc(r.log.join('\n'))}</pre>
+      ${r.error ? `<div class="toast" style="position:static;margin-top:8px">${esc(r.error)}</div>` : ''}
+      ${r.status === 'done' ? `<div style="margin-top:10px"><button class="btn primary" id="toresults">See results →</button></div>` : ''}`;
+    const lg = $('#log'); lg.scrollTop = lg.scrollHeight; drawCharts($('#charts'), r.history);
+    if ($('#toresults')) $('#toresults').onclick = () => { S.tab = 'results'; S.selRun = r.id; render(); };
+  };
+  draw(run);
+  if (run.status === 'running') S.poll = setInterval(guard(async () => {
+    const r = await api(`/projects/${S.pid}/runs/${run.id}`);
+    const i = S.runs.findIndex(x => x.id === r.id); if (i >= 0) S.runs[i] = r;
+    draw(r); if (r.status !== 'running') { stopPoll(); tabTrain(); }
+  }), 1200);
+}
+function drawCharts(host, hist) {
+  if (!host || !hist || hist.length < 2) return;
+  const keys = [...new Set(hist.flatMap(h => Object.keys(h)))].filter(k => k !== 'epoch' && hist.some(h => typeof h[k] === 'number'));
+  const groups = [keys.filter(k => /loss/i.test(k)), keys.filter(k => !/loss/i.test(k))].filter(g => g.length);
+  groups.forEach(g => { const cv = document.createElement('canvas'); cv.width = 520; cv.height = 190; cv.style.cssText = 'background:var(--panel);border:1px solid var(--line);border-radius:8px;margin:0 10px 10px 0;width:520px;max-width:100%';
+    host.appendChild(cv); lineChart(cv, g.slice(0, 6).map((k, i) => ({name: k, color: col(i * 2), ys: hist.map(h => h[k] ?? null)}))); });
+}
+function lineChart(cv, series) {
+  const g = cv.getContext('2d'), W = cv.width, H = cv.height, p = {l: 44, r: 10, t: 12, b: 38};
+  const all = series.flatMap(s => s.ys.filter(v => v !== null)); let lo = Math.min(...all), hi = Math.max(...all); if (lo === hi) { lo -= 1; hi += 1; }
+  g.clearRect(0, 0, W, H); g.strokeStyle = '#2b3440'; g.fillStyle = '#8b98a8'; g.font = '11px sans-serif';
+  for (let i = 0; i <= 4; i++) { const y = p.t + (H - p.t - p.b) * i / 4; g.beginPath(); g.moveTo(p.l, y); g.lineTo(W - p.r, y); g.stroke(); g.fillText(fmt(hi - (hi - lo) * i / 4, 2), 4, y + 4); }
+  series.forEach((s, si) => { g.strokeStyle = s.color; g.lineWidth = 2; g.beginPath(); let st = false;
+    s.ys.forEach((v, i) => { if (v === null) return; const x = p.l + (W - p.l - p.r) * (s.ys.length > 1 ? i / (s.ys.length - 1) : 0), y = p.t + (H - p.t - p.b) * (1 - (v - lo) / (hi - lo)); st ? g.lineTo(x, y) : g.moveTo(x, y); st = true; });
+    g.stroke(); g.fillStyle = s.color; g.fillRect(p.l + si * 120, H - 14, 10, 10); g.fillStyle = '#8b98a8'; g.fillText(s.name.slice(0, 16), p.l + si * 120 + 14, H - 5); });
+}
+
+/* =========================================================== RESULTS tab */
+function primary(r) {
+  const m = r.metrics; if (!m) return ['—', '—'];
+  if (m.accuracy !== undefined) return ['accuracy', (m.accuracy * 100).toFixed(1) + '%'];
+  if (m.r2 !== undefined) return ['R²', m.r2.toFixed(3)];
+  const f = m.final || {}; const k = Object.keys(f).find(k => k.startsWith('mAP50-95')) || Object.keys(f).find(k => k.startsWith('mAP50'));
+  return k ? [k, f[k].toFixed(3)] : ['—', '—'];
+}
+function pnum(r) { const v = parseFloat(primary(r)[1]); return isNaN(v) ? -1 : v; }
+
+function tabResults() {
+  const runs = [...S.runs].sort((a, b) => (b.status === 'done') - (a.status === 'done') || pnum(b) - pnum(a));
+  if (!S.selRun || !runs.find(r => r.id === S.selRun)) S.selRun = runs[0] && runs[0].id;
+  $('#pane').innerHTML = !runs.length ? `<div class="card muted">No trained models yet. Go to the Train tab.</div>` : `<div class="split">
+    <div><h2>Models <span class="muted" style="font-size:13px">best first</span></h2><div class="list">${runs.map(r => `
+      <div class="it ${r.id === S.selRun ? 'on' : ''}" data-run="${r.id}"><div class="row"><b>${esc(r.algo.split(':')[1])}</b><span class="right pill ${r.status === 'done' ? 'ok' : ''}">${r.status === 'done' ? primary(r)[1] : r.status}</span></div>
+      <div class="s">${primary(r)[0] !== '—' ? primary(r)[0] + ' · ' : ''}${new Date(r.started * 1000).toLocaleString()}</div></div>`).join('')}</div></div>
+    <div id="detail"></div></div>`;
+  $$('[data-run]').forEach(e => e.onclick = () => { S.selRun = e.dataset.run; tabResults(); });
+  const r = runs.find(r => r.id === S.selRun); if (r) runDetail(r);
+}
+function runDetail(r) {
+  const m = r.metrics, el = $('#detail'), t = S.meta.type;
+  let h = `<div class="row"><h2 style="margin:0">${esc(r.algo.split(':')[1])}</h2><span class="pill ${r.status === 'done' ? 'ok' : ''}">${r.status}</span>
+      <span class="right"></span>${r.status === 'done' ? `<a class="btn sm" href="/api/projects/${S.pid}/runs/${r.id}/model">Download model</a>` : ''}
+      <button class="btn sm danger" id="delrun">Delete</button></div>`;
+  if (r.error) h += `<div class="toast" style="position:static;margin-top:10px">${esc(r.error)}</div>`;
+  if (m) {
+    if (m.accuracy !== undefined) h += `<div class="kv" style="margin-top:14px"><div><b>${(m.accuracy * 100).toFixed(1)}%</b><span>Validation accuracy</span></div>
+      ${m.train_accuracy !== undefined ? `<div><b>${(m.train_accuracy * 100).toFixed(1)}%</b><span>Training accuracy</span></div>` : ''}
+      <div><b>${(m.precision_macro * 100).toFixed(1)}%</b><span>Precision (macro)</span></div><div><b>${(m.recall_macro * 100).toFixed(1)}%</b><span>Recall (macro)</span></div><div><b>${(m.f1_macro * 100).toFixed(1)}%</b><span>F1 (macro)</span></div></div>`;
+    else if (m.r2 !== undefined) h += `<div class="kv" style="margin-top:14px"><div><b>${m.r2.toFixed(3)}</b><span>R²</span></div><div><b>${fmt(m.mae)}</b><span>MAE</span></div><div><b>${fmt(m.rmse)}</b><span>RMSE</span></div></div><h4>Predicted vs actual</h4><canvas id="sc" width="420" height="320" style="background:var(--panel);border:1px solid var(--line);border-radius:8px"></canvas>`;
+    else if (m.final) h += `<div class="kv" style="margin-top:14px">${Object.entries(m.final).filter(([k]) => /map|precision|recall/i.test(k)).map(([k, v]) => `<div><b>${v.toFixed(3)}</b><span>${esc(k)}</span></div>`).join('')}</div>`;
+    if (m.confusion) {
+      const mx = Math.max(1, ...m.confusion.flat());
+      h += `<h4>Confusion matrix <span class="hint">(rows = true class, columns = predicted)</span></h4><div class="scroll"><table class="cm" style="border-collapse:collapse"><tr><th></th>${m.classes.map(c => `<th>${esc(c)}</th>`).join('')}</tr>
+        ${m.confusion.map((row, i) => `<tr><th>${esc(m.classes[i])}</th>${row.map((v, j) => `<td style="background:${v ? (i === j ? `rgba(45,212,191,${.15 + .7 * v / mx})` : `rgba(240,97,109,${.2 + .7 * v / mx})`) : 'transparent'}">${v}</td>`).join('')}</tr>`).join('')}</table></div>
+        <h4>Per class</h4><div class="scroll"><table class="cm" style="width:100%"><tr><th>Class</th><th>Precision</th><th>Recall</th><th>F1</th><th>Samples</th></tr>${m.per_class.map(c => `<tr><td>${esc(c.class)}</td><td>${c.precision.toFixed(2)}</td><td>${c.recall.toFixed(2)}</td><td>${c.f1.toFixed(2)}</td><td>${c.support}</td></tr>`).join('')}</table></div>`;
+      if (m.wrong_ids?.length && isImg(t)) h += `<h4>Misclassified validation images (${m.wrong_ids.length}) <span class="hint">click to review</span></h4><div class="thumbs">${m.wrong_ids.slice(0, 24).map(id => { const i = S.items.findIndex(x => x.id === id); return i < 0 ? '' : `<div class="thumb" data-wrong="${i}"><img src="${fileUrl(S.items[i])}"><div class="tag">${esc(S.items[i].label)}</div></div>`; }).join('')}</div>`;
+    }
+  }
+  if (r.history && r.history.length > 1) h += `<h4>Training curves</h4><div id="charts"></div>`;
+  if (r.status === 'done') h += `<h4>Try it</h4><div id="pred" class="card"></div>`;
+  h += `<h4>Log</h4><pre class="log">${esc((r.log || []).join('\n'))}</pre>`;
+  el.innerHTML = h;
+  if (r.history) drawCharts($('#charts'), r.history);
+  if ($('#sc')) scatterPlot($('#sc'), m.scatter);
+  $$('[data-wrong]').forEach(e => e.onclick = () => { S.cur = +e.dataset.wrong; S.filter = 'all'; S.tab = 'label'; render(); });
+  $('#delrun').onclick = guard(async () => { if (!confirm('Delete this model?')) return; await api(`/projects/${S.pid}/runs/${r.id}`, {method: 'DELETE'}); S.selRun = null; await reload(); tabResults(); });
+  if (r.status === 'done') predictPanel(r);
+}
+function scatterPlot(cv, pts) {
+  const g = cv.getContext('2d'), W = cv.width, H = cv.height, p = 36; const xs = pts.flatMap(a => a);
+  const lo = Math.min(...xs), hi = Math.max(...xs), sx = v => p + (W - p - 10) * (v - lo) / (hi - lo || 1), sy = v => H - p - (H - p - 10) * (v - lo) / (hi - lo || 1);
+  g.strokeStyle = '#41505f'; g.beginPath(); g.moveTo(sx(lo), sy(lo)); g.lineTo(sx(hi), sy(hi)); g.stroke();
+  g.fillStyle = 'rgba(45,212,191,.7)'; pts.forEach(([a, b]) => { g.beginPath(); g.arc(sx(a), sy(b), 3, 0, 7); g.fill(); });
+  g.fillStyle = '#8b98a8'; g.font = '11px sans-serif'; g.fillText('actual →', W / 2, H - 8); g.save(); g.translate(10, H / 2); g.rotate(-Math.PI / 2); g.fillText('predicted →', 0, 0); g.restore();
+}
+
+/* ---- predict panel */
+function predictPanel(r) {
+  const m = S.meta, t = m.type, host = $('#pred');
+  const out = res => {
+    if (res.value !== undefined) return `<h2>${fmt(res.value, 4)}</h2>`;
+    let h = '';
+    if (res.label !== undefined) h += `<h2 style="margin:0 0 8px">${esc(res.label)}</h2>` + (res.scores || []).map(s => `<div class="row" style="margin:3px 0"><span style="width:130px">${esc(s.class)}</span><div class="bar" style="flex:1"><i style="width:${s.p * 100}%"></i></div><span style="width:48px;text-align:right">${(s.p * 100).toFixed(1)}%</span></div>`).join('');
+    if (res.boxes) h += `<div>${res.boxes.length} object(s): ${res.boxes.map(b => `${esc(b.cls)} ${(b.conf * 100).toFixed(0)}%`).join(', ') || 'none found'}</div>`;
+    return h;
+  };
+  if (t === 'tabular') {
+    const feats = m.columns.filter(c => c !== m.target && !(m.ignore || []).includes(c));
+    host.innerHTML = `<div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(170px,1fr))">${feats.map(c => `<label class="hint">${esc(c)}<input data-f="${esc(c)}" style="width:100%"></label>`).join('')}</div>
+      <div class="row" style="margin-top:10px"><button class="btn primary" id="dopred">Predict</button><button class="btn sm" id="fillrow">Fill from random row</button></div><div id="pout" style="margin-top:10px"></div>`;
+    $('#fillrow').onclick = () => { const x = S.items[Math.floor(Math.random() * S.items.length)]; $$('[data-f]').forEach(i => i.value = (x.row || {})[i.dataset.f] ?? ''); };
+    $('#dopred').onclick = guard(async () => { const row = {}; $$('[data-f]').forEach(i => row[i.dataset.f] = i.value);
+      $('#pout').innerHTML = out(await api(`/projects/${S.pid}/predict`, {json: {run: r.id, row}})); });
+  } else if (t === 'text_classification') {
+    host.innerHTML = `<textarea id="ptx" rows="3" style="width:100%" placeholder="Type some text..."></textarea><div class="row" style="margin-top:8px"><button class="btn primary" id="dopred">Predict</button></div><div id="pout" style="margin-top:10px"></div>`;
+    $('#dopred').onclick = guard(async () => { $('#pout').innerHTML = out(await api(`/projects/${S.pid}/predict`, {json: {run: r.id, text: $('#ptx').value}})); });
+  } else {
+    host.innerHTML = `<div class="row"><input type="file" id="pimg" accept="image/*">${['object_detection', 'segmentation'].includes(t) ? `<label class="hint">min conf <input id="pconf" type="number" min="0.05" max="0.95" step="0.05" value="0.25" style="width:70px"></label>` : ''}</div>
+      <div id="pout" style="margin-top:10px"></div><canvas id="pcv" style="margin-top:10px;display:none;border-radius:8px"></canvas>`;
+    $('#pimg').onchange = guard(async e => {
+      const f = e.target.files[0]; if (!f) return; const fd = new FormData(); fd.append('file', f);
+      const res = await api(`/projects/${S.pid}/predict-upload/${r.id}?conf=${$('#pconf')?.value || 0.25}`, {form: fd});
+      $('#pout').innerHTML = out(res);
+      if (res.boxes || res.polys) { const img = new Image(); img.onload = () => { const cv = $('#pcv'); const s = Math.min(1, 640 / img.width); cv.width = img.width * s; cv.height = img.height * s; cv.style.display = 'block';
+        const g = cv.getContext('2d'); g.drawImage(img, 0, 0, cv.width, cv.height); g.lineWidth = 2; g.font = '12px sans-serif';
+        (res.polys || []).forEach(p => { const c = col(Math.max(0, S.meta.classes.indexOf(p.cls))); g.strokeStyle = c; g.beginPath(); p.pts.forEach(([x, y], i) => i ? g.lineTo(x * cv.width, y * cv.height) : g.moveTo(x * cv.width, y * cv.height)); g.closePath(); g.stroke(); });
+        res.boxes.forEach(b => { const c = col(Math.max(0, S.meta.classes.indexOf(b.cls))); g.strokeStyle = c; g.strokeRect(b.x * cv.width, b.y * cv.height, b.w * cv.width, b.h * cv.height); g.fillStyle = c; g.fillText(`${b.cls} ${(b.conf * 100).toFixed(0)}%`, b.x * cv.width + 3, b.y * cv.height + 12); }); };
+        img.src = URL.createObjectURL(f); }
+    });
+  }
+}
+
+goHome().catch(e => toast(e.message));
+</script>
+</body>
+</html>
