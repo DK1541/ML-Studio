@@ -3,6 +3,22 @@
 A local, browser-based tool to **create datasets, label them, and train models** - no code needed.
 Your data never leaves your computer. Everything is stored in the `workspace/` folder.
 
+## Screenshots
+
+| | |
+|---|---|
+| ![Home](docs/01-home.png) | ![Boxes](docs/02-label-boxes.jpg) |
+| ![Polygons](docs/03-label-polygons.jpg) | ![Train](docs/04-train.png) |
+
+![Results](docs/05-results.png)
+
+## Sample datasets
+
+Click **Load sample datasets** on the home page to get seven ready-made projects (two tables, text, handwritten digits,
+and shapes for image classification, object detection and segmentation) and try training right away.
+All sample data is synthetic or bundled with scikit-learn - no real photos are used:
+Iris (Fisher, 1936), and the 8x8 handwritten digits set (UCI ML Repository, E. Alpaydin & C. Kaynak, CC BY 4.0).
+
 ## Start
 
 * **Windows:** double-click `start.bat`  (first run creates a virtual environment and installs packages)
@@ -63,3 +79,7 @@ saves a model into the run folder, and returns a metrics dict; register it in `c
 ML Studio is released under the **GNU AGPL-3.0** (see `LICENSE`).
 It optionally uses [Ultralytics YOLO](https://ultralytics.com/license), which is also AGPL-3.0 (or commercial license).
 Other dependencies (scikit-learn, PyTorch, FastAPI, OpenCV, ...) have their own permissive licenses.
+
+## Contributing
+
+Contributions are welcome - see [CONTRIBUTING.md](CONTRIBUTING.md).

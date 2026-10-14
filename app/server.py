@@ -83,6 +83,13 @@ def capabilities():
     return {"libs": tr.capabilities(), "types": st.DATASET_TYPES}
 
 
+@app.post("/api/samples")
+def samples():
+    """Create the built-in synthetic sample datasets (skips ones that already exist)."""
+    from . import samples as sm
+    return {"created": sm.load_samples()}
+
+
 @app.get("/api/projects")
 def projects():
     return st.list_projects()

@@ -163,7 +163,9 @@ async function goHome() {
   $('#caps').innerHTML = [['scikit-learn', 1], ['PyTorch', L.torch], ['YOLO', L.ultralytics], ['XGBoost', L.xgboost], ['LightGBM', L.lightgbm]]
     .map(([n, ok]) => `<span class="pill ${ok ? 'ok' : 'no'}" title="${ok ? 'installed' : 'not installed (optional)'}">${ok ? '●' : '○'} ${n}</span>`).join(' ');
   $('#main').innerHTML = `
-    <div class="row" style="margin-bottom:16px"><h2 style="margin:0">Your datasets</h2><button class="btn primary right" id="newp">+ New dataset</button></div>
+    <div class="row" style="margin-bottom:16px"><h2 style="margin:0">Your datasets</h2><span class="right"></span>
+      <button class="btn" id="samples" title="Adds small synthetic datasets (table, text, handwriting, shapes) so you can try everything">Load sample datasets</button>
+      <button class="btn primary" id="newp">+ New dataset</button></div>
     <div class="grid cards">${S.projects.map(p => `
       <div class="card click" data-open="${p.id}">
         <h3>${esc(p.name)}</h3>
@@ -171,8 +173,14 @@ async function goHome() {
         <div style="margin:12px 0 6px">${p.n_labeled} / ${p.n_items} labeled</div>
         <div class="bar"><i style="width:${p.n_items ? 100 * p.n_labeled / p.n_items : 0}%"></i></div>
         <div style="margin-top:10px">${(p.classes || []).slice(0, 6).map((c, i) => `<span class="chip"><b style="background:${col(i)}"></b>${esc(c)}</span>`).join('')}</div>
-      </div>`).join('') || '<div class="muted">No datasets yet. Create one to start labeling and training.</div>'}</div>`;
+      </div>`).join('') || '<div class="muted">No datasets yet. Create one, or click <b>Load sample datasets</b> to try the app with ready-made data.</div>'}</div>`;
   $('#newp').onclick = newProjectModal;
+  $('#samples').onclick = guard(async () => {
+    $('#samples').disabled = true; $('#samples').textContent = 'Creating samples...';
+    const r = await api('/samples', {method: 'POST'});
+    toast(r.created.length ? `Added ${r.created.length} sample dataset(s)` : 'Samples are already loaded', true);
+    goHome();
+  });
   $$('[data-open]').forEach(e => e.onclick = () => openProject(e.dataset.open));
 }
 
